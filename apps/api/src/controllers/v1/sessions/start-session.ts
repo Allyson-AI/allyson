@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import * as k8s from "@kubernetes/client-node";
-import { V1Deployment, V1Ingress, V1APIService } from "@kubernetes/client-node";
+import { V1Deployment, V1Ingress, V1Service } from "@kubernetes/client-node";
 import { v4 as uuidv4 } from "uuid";
 import yaml from "js-yaml";
 import fs from "fs";
@@ -111,7 +111,7 @@ export const startSession = async (
       .replace(/\$\{SECRET_KEY\}/g, process.env.S3_SECRET_KEY ?? "")
       .replace(/\$\{S3_ENDPOINT\}/g, process.env.S3_ENDPOINT ?? "");
 
-    const configs = yaml.loadAll(configYaml) as [V1Deployment, V1APIService, V1Ingress];
+    const configs = yaml.loadAll(configYaml) as [V1Deployment, V1Service, V1Ingress];
     const deployment = configs[0];
 
     if (!deployment?.metadata || !deployment?.spec?.template?.metadata) {

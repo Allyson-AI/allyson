@@ -5,6 +5,7 @@ import * as k8s from "@kubernetes/client-node";
 import path from "path";
 import fs from "fs";
 import yaml from "js-yaml";
+import { V1Deployment, V1Service } from "@kubernetes/client-node";
 
 interface HumanInput {
   title: string;
@@ -99,7 +100,7 @@ async function updateHumanInput(
         .replace(/\$\{SECRET_KEY\}/g, process.env.S3_SECRET_KEY ?? "")
         .replace(/\$\{S3_ENDPOINT\}/g, process.env.S3_ENDPOINT ?? "");
         
-      const configs = yaml.loadAll(configYaml) as k8s.V1Deployment[];
+      const configs = yaml.loadAll(configYaml) as [V1Deployment, V1Service];
       const deployment = configs[0];
 
       if (!deployment?.metadata || !deployment?.spec?.template?.metadata) {
@@ -125,7 +126,7 @@ async function updateHumanInput(
       await k8sApi.createNamespacedDeployment("default", deployment);
       await k8sCoreApi.createNamespacedService(
         "default",
-        configs[1] as unknown as k8s.V1APIService
+        configs[1]
       );
     }
 
