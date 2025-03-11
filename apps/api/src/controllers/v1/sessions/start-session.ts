@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import * as k8s from "@kubernetes/client-node";
+import { V1Deployment, V1Ingress, V1APIService } from "@kubernetes/client-node";
 import { v4 as uuidv4 } from "uuid";
 import yaml from "js-yaml";
 import fs from "fs";
@@ -110,7 +111,7 @@ export const startSession = async (
       .replace(/\$\{SECRET_KEY\}/g, process.env.S3_SECRET_KEY ?? "")
       .replace(/\$\{S3_ENDPOINT\}/g, process.env.S3_ENDPOINT ?? "");
 
-    const configs = yaml.loadAll(configYaml) as k8s.V1Deployment[];
+    const configs = yaml.loadAll(configYaml) as [V1Deployment, V1APIService, V1Ingress];
     const deployment = configs[0];
 
     if (!deployment?.metadata || !deployment?.spec?.template?.metadata) {
@@ -136,11 +137,11 @@ export const startSession = async (
     await k8sApi.createNamespacedDeployment("default", deployment);
     await k8sCoreApi.createNamespacedService(
       "default",
-      configs[1] as unknown as k8s.V1Service
+      configs[1]
     );
     await k8sNetworkingApi.createNamespacedIngress(
       "default",
-      configs[2] as unknown as k8s.V1Ingress
+      configs[2]
     );
 
     const source = req.headers["x-api-key"] ? "api" : "client";

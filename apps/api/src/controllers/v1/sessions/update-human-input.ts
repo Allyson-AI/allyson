@@ -125,7 +125,7 @@ async function updateHumanInput(
       await k8sApi.createNamespacedDeployment("default", deployment);
       await k8sCoreApi.createNamespacedService(
         "default",
-        configs[1] as unknown as k8s.V1Service
+        configs[1] as unknown as k8s.V1APIService
       );
     }
 
