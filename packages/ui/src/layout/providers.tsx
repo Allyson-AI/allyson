@@ -11,7 +11,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { SidebarProvider } from "@allyson/ui/sidebar";
 import AppWalletProvider from "@allyson/ui/layout/wallet-provider";
 import OnboardingLayout from "@allyson/ui/layout/onboarding";
-
+import PostHogPageView from "@allyson/ui/layout/posthog-pageview";
 interface ProvidersProps {
   children: ReactNode;
   src: string;
@@ -27,6 +27,7 @@ export default function Providers({ children, src }: ProvidersProps) {
         <QueryClientProvider client={queryClient}>
           <PostHogProvider>
             <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+              <PostHogPageView />
               {children}
               <Toaster />
             </ThemeProvider>
@@ -43,7 +44,10 @@ export default function Providers({ children, src }: ProvidersProps) {
               <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
                 <SidebarProvider>
                   <AppWalletProvider>
-                    <OnboardingLayout>{children}</OnboardingLayout>
+                    <OnboardingLayout>
+                      <PostHogPageView />
+                      {children}
+                    </OnboardingLayout>
                   </AppWalletProvider>
                 </SidebarProvider>
                 <Toaster />
