@@ -81,6 +81,7 @@
     "aos": "^2.3.4",
     "autoprefixer": "^10.4.20",
     "aws-sdk": "^2.1687.0",
+    "axios": "1.8.2",
     "branch-sdk": "^2.85.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",

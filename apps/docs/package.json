@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@allyson/ui": "*",
-    "@mintlify/scraping": "^3.0.88",
-    "mintlify": "^4.0.127"
+    "@mintlify/scraping": "^3.0.189",
+    "mintlify": "^4.0.427"
   },
   "devDependencies": {
     "@allyson/eslint-config": "*",
