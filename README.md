@@ -1,8 +1,6 @@
 # Allyson - AI Web Agent
 
-<p align="center">
-  <img src="https://allyson.ai/allyson-og.png" alt="Allyson Logo" width="200"/>
-</p>
+![Allyson Logo](https://allyson.ai/allyson-og.png)
 
 Allyson is an AI web agent that handles online tasks for you. It can navigate websites, fill forms, collect data, manage files, and perform various web-based operations with persistence through S3 storage.
 
