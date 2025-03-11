@@ -45,7 +45,8 @@ export function getKubeConfigPath(): string {
   const isProd = process.env.NODE_ENV === 'production';
   
   if (!process.env.K8S_TEST_CERT_AUTH_DATA || !process.env.K8S_TEST_SERVER_URL || !process.env.K8S_TEST_TOKEN ||
-      !process.env.K8S_PROD_CERT_AUTH_DATA || !process.env.K8S_PROD_SERVER_URL || !process.env.K8S_PROD_TOKEN) {
+      !process.env.K8S_PROD_CERT_AUTH_DATA || !process.env.K8S_PROD_SERVER_URL || !process.env.K8S_PROD_TOKEN ||
+      !process.env.K8S_TEST_CLUSTER_NAME || !process.env.K8S_PROD_CLUSTER_NAME) {
     throw new Error('Missing required Kubernetes configuration environment variables');
   }
 
@@ -53,12 +54,12 @@ export function getKubeConfigPath(): string {
     certAuthData: process.env.K8S_PROD_CERT_AUTH_DATA,
     serverUrl: process.env.K8S_PROD_SERVER_URL,
     token: process.env.K8S_PROD_TOKEN,
-    clusterName: 'do-nyc3-browser-k8-production'
+    clusterName: process.env.K8S_PROD_CLUSTER_NAME
   } : {
     certAuthData: process.env.K8S_TEST_CERT_AUTH_DATA,
     serverUrl: process.env.K8S_TEST_SERVER_URL,
     token: process.env.K8S_TEST_TOKEN,
-    clusterName: 'do-nyc3-browser-k8-test'
+    clusterName: process.env.K8S_TEST_CLUSTER_NAME
   };
 
   return generateKubeConfig(config);

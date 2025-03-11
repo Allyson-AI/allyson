@@ -3,8 +3,7 @@
 "use client";
 import React, { ReactNode } from "react";
 import ThemeProvider from "./theme-provider";
-import posthog from "posthog-js";
-import { PostHogProvider } from "posthog-js/react";
+import { PostHogProvider } from "@allyson/ui/layout/posthog-provider";
 import { Toaster } from "@allyson/ui/sonner";
 import { UserProvider } from "@allyson/context";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -26,16 +25,12 @@ export default function Providers({ children, src }: ProvidersProps) {
     if (src === "www") {
       return (
         <QueryClientProvider client={queryClient}>
-            <PostHogProvider client={posthog}>
-              <ThemeProvider
-                attribute="class"
-                defaultTheme="dark"
-                enableSystem
-              >
-                {children}
-                <Toaster />
-              </ThemeProvider>
-            </PostHogProvider>
+          <PostHogProvider>
+            <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+              {children}
+              <Toaster />
+            </ThemeProvider>
+          </PostHogProvider>
         </QueryClientProvider>
       );
     }
@@ -43,24 +38,18 @@ export default function Providers({ children, src }: ProvidersProps) {
     return (
       <ClerkProvider>
         <QueryClientProvider client={queryClient}>
-            <PostHogProvider client={posthog}>
-              <UserProvider>
-                  <ThemeProvider
-                    attribute="class"
-                    defaultTheme="dark"
-                    enableSystem
-                  >
-                    <SidebarProvider>
-                      <AppWalletProvider>
-                      <OnboardingLayout>
-                        {children}
-                        </OnboardingLayout>
-                      </AppWalletProvider>
-                    </SidebarProvider>
-                    <Toaster />
-                  </ThemeProvider>
-              </UserProvider>
-            </PostHogProvider>
+          <PostHogProvider>
+            <UserProvider>
+              <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+                <SidebarProvider>
+                  <AppWalletProvider>
+                    <OnboardingLayout>{children}</OnboardingLayout>
+                  </AppWalletProvider>
+                </SidebarProvider>
+                <Toaster />
+              </ThemeProvider>
+            </UserProvider>
+          </PostHogProvider>
         </QueryClientProvider>
       </ClerkProvider>
     );
