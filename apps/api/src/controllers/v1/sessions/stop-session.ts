@@ -1,25 +1,9 @@
-
 import { Request, Response } from "express";
 import * as k8s from "@kubernetes/client-node";
-import path from "path";
+import fs from "fs";
 import { Session } from "../../../models/session";
 import { ExpressRequestWithAuth } from "@clerk/express";
-
-// Use __dirname for CommonJS
-const KUBE_TEST_CONFIG_PATH = path.join(
-  __dirname,
-  "browser-k8-test-kubeconfig.yaml"
-);
-const KUBE_PRODUCTION_CONFIG_PATH = path.join(
-  __dirname,
-  "browser-k8-production-kubeconfig.yaml"
-);
-
-const KUBE_CONFIG_PATH =
-  process.env.NODE_ENV === "production"
-    ? KUBE_PRODUCTION_CONFIG_PATH
-    : KUBE_TEST_CONFIG_PATH;
-
+import { getKubeConfigPath } from "../../../utils/kubeconfig";
 
 export async function stopSession(
   req: ExpressRequestWithAuth | Request,
@@ -35,6 +19,39 @@ export async function stopSession(
       { $set: { status: "stopped", endTime: new Date() } }
     );
 
+    // Delete the Kubernetes resources
+    const kubeConfigPath = getKubeConfigPath();
+    const kc = new k8s.KubeConfig();
+    kc.loadFromFile(kubeConfigPath);
+
+    const k8sApi = kc.makeApiClient(k8s.AppsV1Api);
+    const k8sCoreApi = kc.makeApiClient(k8s.CoreV1Api);
+    const k8sNetworkingApi = kc.makeApiClient(k8s.NetworkingV1Api);
+
+    // Delete deployment, service, and ingress
+    try {
+      await k8sApi.deleteNamespacedDeployment(
+        `browser-${sessionId}`,
+        "default"
+      );
+      await k8sCoreApi.deleteNamespacedService(
+        `browser-${sessionId}`,
+        "default"
+      );
+      await k8sNetworkingApi.deleteNamespacedIngress(
+        `browser-${sessionId}`,
+        "default"
+      );
+    } catch (error) {
+      console.error("Error deleting Kubernetes resources:", error);
+    }
+
+    // Clean up the temporary kubeconfig file
+    try {
+      fs.unlinkSync(kubeConfigPath);
+    } catch (error) {
+      console.error("Error cleaning up kubeconfig:", error);
+    }
 
     res.status(200).json({
       message: "Session stopped successfully",

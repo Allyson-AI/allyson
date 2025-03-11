@@ -8,16 +8,8 @@ import { Session } from "../../../models/session";
 import { User } from "../../../models/user";
 import OpenAI from "openai";
 import { ExpressRequestWithAuth } from "@clerk/express";
+import { getKubeConfigPath } from "../../../utils/kubeconfig";
 
-// Use __dirname directly since we're in CommonJS
-const KUBE_TEST_CONFIG_PATH = path.join(
-  __dirname,
-  "browser-k8-test-kubeconfig.yaml"
-);
-const KUBE_PRODUCTION_CONFIG_PATH = path.join(
-  __dirname,
-  "browser-k8-production-kubeconfig.yaml"
-);
 const DEPLOYMENT_DEV_TEMPLATE_PATH = path.join(
   __dirname,
   "deployment-dev.yaml"
@@ -26,11 +18,6 @@ const DEPLOYMENT_PROD_TEMPLATE_PATH = path.join(
   __dirname,
   "deployment-prod.yaml"
 );
-
-const KUBE_CONFIG_PATH =
-  process.env.NODE_ENV === "production"
-    ? KUBE_PRODUCTION_CONFIG_PATH
-    : KUBE_TEST_CONFIG_PATH;
 
 const DEPLOYMENT_TEMPLATE_PATH =
   process.env.NODE_ENV === "production"
@@ -99,13 +86,11 @@ export const startSession = async (
   const { task, sessionVariables, sessionDetails, maxSteps } = req.body;
   const sessionId = uuidv4().split("-")[0] || "";
 
-  // Determine the source based on the auth type
-  // const source = auth.type === "api-key" ? "api" : "client";
-
   try {
     const name = await generateTaskName(task);
+    const kubeConfigPath = getKubeConfigPath();
     const kc = new k8s.KubeConfig();
-    kc.loadFromFile(KUBE_CONFIG_PATH);
+    kc.loadFromFile(kubeConfigPath);
 
     const k8sApi = kc.makeApiClient(k8s.AppsV1Api);
     const k8sCoreApi = kc.makeApiClient(k8s.CoreV1Api);
@@ -180,6 +165,13 @@ export const startSession = async (
     });
 
     await session.save();
+
+    // Clean up the temporary kubeconfig file
+    try {
+      fs.unlinkSync(kubeConfigPath);
+    } catch (error) {
+      console.error("Error cleaning up kubeconfig:", error);
+    }
 
     res.status(200).json({
       message: "Session started successfully",
