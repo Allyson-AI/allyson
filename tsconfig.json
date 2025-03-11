@@ -1,0 +1,4 @@
+{
+  "extends": "@allyson/typescript-config/base.json"
+}
+

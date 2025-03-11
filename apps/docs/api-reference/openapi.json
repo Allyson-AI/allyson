@@ -1,0 +1,750 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Allyson",
+    "description": "",
+    "version": "0.1.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.allyson.ai"
+    }
+  ],
+  "paths": {
+    "/v1/sessions/new": {
+      "post": {
+        "tags": ["Sessions"],
+        "summary": "Start New Session",
+        "description": "Creates and starts a new browser automation session.",
+        "operationId": "sessions-start_session",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "task": {
+                    "type": "string",
+                    "description": "The task description for the automation session",
+                    "example": "Search for the price of an ESP32 & save it to a text file."
+                  },
+                  "sessionVariables": {
+                    "type": "array",
+                    "description": "Optional settings for the session",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "description": "Name of the session variable"
+                        },
+                        "value": {
+                          "type": "string",
+                          "description": "Value of the session variable"
+                        }
+                      }
+                    }
+                  },
+                  "sessionDetails": {
+                    "type": "string",
+                    "description": "Detailed description of the session"
+                  },
+                  "maxSteps": {
+                    "type": "number",
+                    "description": "Maximum number of steps for the session"
+                  }
+                },
+                "required": ["task", "maxSteps"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Session started successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Browser session started successfully"
+                    },
+                    "sessionId": {
+                      "type": "string",
+                      "example": "a1b2c3d4"
+                    },
+                    "messages": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "role": {
+                            "type": "string"
+                          },
+                          "content": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "active",
+                        "inactive",
+                        "completed",
+                        "failed",
+                        "humanInput",
+                        "stopped"
+                      ]
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "AI-generated name for the task"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "sessionId",
+                    "messages",
+                    "status",
+                    "name"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Unauthorized - User ID is required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Failed to start browser session"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/sessions": {
+      "get": {
+        "tags": ["Sessions"],
+        "summary": "Get Sessions",
+        "description": "Returns paginated list of sessions.",
+        "operationId": "sessions-get_sessions",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter sessions by status:\n\n- `active`: Session is currently running and processing\n- `inactive`: Session is paused or temporarily stopped\n- `completed`: Session has finished successfully\n- `failed`: Session encountered an error and stopped\n- `humanInput`: Session is waiting for human interaction",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive",
+                "completed",
+                "failed",
+                "humanInput",
+                "stopped"
+              ],
+              "x-enum-descriptions": [
+                "Session is currently running",
+                "Session is currently not running",
+                "Session has finished successfully",
+                "Session encountered an error and stopped",
+                "Session is waiting for human interaction"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sessions": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AllSessions"
+                      }
+                    },
+                    "currentPage": {
+                      "type": "integer"
+                    },
+                    "totalPages": {
+                      "type": "integer"
+                    },
+                    "totalSessions": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "sessions",
+                    "currentPage",
+                    "totalPages",
+                    "totalSessions"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/sessions/{id}": {
+      "get": {
+        "tags": ["Sessions"],
+        "summary": "Get Session",
+        "description": "Returns a specific session by ID.",
+        "operationId": "sessions-get_session",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Session ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "session": {
+                      "$ref": "#/components/schemas/Session"
+                    }
+                  },
+                  "required": ["session"]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Session not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Session not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Failed to fetch browser session"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/sessions/{id}/update-human-input": {
+      "put": {
+        "tags": ["Sessions"],
+        "summary": "Update Human Input",
+        "description": "Updates the human input for a specific session message.",
+        "operationId": "sessions-update_human_input",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the session to update.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sessionId": {
+                    "type": "string",
+                    "description": "The ID of the session."
+                  },
+                  "humanInputResponse": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "messageIndex": {
+                    "type": "integer",
+                    "description": "The index of the message to update."
+                  }
+                },
+                "required": ["sessionId", "humanInputResponse", "messageIndex"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Human input updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "updatedMessage": {
+                      "type": "object",
+                      "description": "The updated message object."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Session not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Session": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "nullable": true
+          },
+          "userId": {
+            "type": "string",
+            "title": "User ID"
+          },
+          "sessionId": {
+            "type": "string",
+            "title": "Session ID"
+          },
+          "lastScreenshotUrl": {
+            "type": "string",
+            "title": "Last Screenshot URL",
+            "nullable": true
+          },
+          "lastScreenshotTimestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Screenshot Timestamp",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "completed",
+              "failed",
+              "humanInput",
+              "stopped"
+            ],
+            "title": "Status"
+          },
+          "messages": {
+            "type": "array",
+            "title": "Messages",
+            "items": {
+              "type": "object",
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "enum": ["assistant", "user"],
+                  "title": "Role"
+                },
+                "content": {
+                  "type": "string",
+                  "title": "Content"
+                },
+                "agent_data": {
+                  "type": "object",
+                  "properties": {
+                    "action": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                      },
+                      "title": "Action"
+                    }
+                  },
+                  "title": "Agent Data"
+                }
+              },
+              "required": ["role", "content"]
+            }
+          },
+          "files": {
+            "type": "array",
+            "title": "Files",
+            "items": {
+              "type": "object",
+              "properties": {
+                "filename": {
+                  "type": "string",
+                  "title": "Filename"
+                },
+                "signedUrl": {
+                  "type": "string",
+                  "title": "Signed URL"
+                },
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "Timestamp"
+                }
+              },
+              "required": ["filename", "signedUrl", "timestamp"]
+            }
+          },
+          "startTime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start Time"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End Time",
+            "nullable": true
+          },
+          "sessionVariables": {
+            "type": "array",
+            "title": "Session Variables",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Name of the session variable"
+                },
+                "value": {
+                  "type": "string",
+                  "description": "Value of the session variable"
+                }
+              }
+            }
+          },
+          "sessionDetails": {
+            "type": "string",
+            "description": "Detailed description of the session"
+          },
+          "maxSteps": {
+            "type": "number",
+            "description": "Maximum number of steps for the session"
+          }
+        },
+        "required": [
+          "userId",
+          "sessionId",
+          "startTime",
+          "endTime",
+          "lastScreenshotUrl",
+          "lastScreenshotTimestamp",
+          "status",
+          "messages",
+          "files",
+          "previousActions",
+          "settings"
+        ],
+        "title": "Session"
+      },
+      "AllSessions": {
+        "type": "object",
+        "properties": {
+          "cost": {
+            "type": "number",
+            "title": "Cost"
+          },
+          "files": {
+            "type": "array",
+            "title": "Files",
+            "items": {
+              "type": "object",
+              "properties": {
+                "filename": {
+                  "type": "string",
+                  "title": "Filename"
+                },
+                "signedUrl": {
+                  "type": "string",
+                  "title": "Signed URL"
+                },
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "Timestamp"
+                }
+              },
+              "required": ["filename", "signedUrl", "timestamp"]
+            }
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "nullable": true
+          },
+          "sessionId": {
+            "type": "string",
+            "title": "Session ID"
+          },
+
+          "startTime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start Time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "completed",
+              "failed",
+              "humanInput",
+              "stopped"
+            ],
+            "title": "Status"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End Time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "cost",
+          "name",
+          "files",
+          "sessionId",
+          "status",
+          "startTime",
+          "updatedAt"
+        ],
+        "title": "AllSessions"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": ["loc", "msg", "type"],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "Add your API key from app.allyson.ai/api to the x-api-key header."
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ]
+}

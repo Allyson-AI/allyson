@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: allyson-ai-api
+    env: docker
+    repo: https://github.com/isaiahbjork/allyson-ai-api
+    plan: starter
+    autoDeploy: true

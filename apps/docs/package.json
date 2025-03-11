@@ -1,0 +1,24 @@
+{
+  "name": "docs",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "mintlify dev --port 3002",
+    "generate-api": "npx @mintlify/scraping@latest openapi-file https://docs.allyson.ai/api-reference/openapi.json --outDir ./api-reference/",
+    "generate-api:dev": "npx @mintlify/scraping@latest openapi-file /api-reference/openapi.json --outDir ./api-reference/"
+  },
+  "dependencies": {
+    "@allyson/ui": "*",
+    "@mintlify/scraping": "^3.0.88",
+    "mintlify": "^4.0.127"
+  },
+  "devDependencies": {
+    "@allyson/eslint-config": "*",
+    "@allyson/typescript-config": "*",
+    "@types/node": "^20",
+    "@types/react": "18.3.1",
+    "@types/react-dom": "18.3.0",
+    "typescript": "4.9.5"
+  }
+}

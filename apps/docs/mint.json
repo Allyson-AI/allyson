@@ -1,0 +1,101 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "Allyson - AI Web Agent Documentation",
+  "metadata": {
+    "og:image": "https://allyson.ai/allyson-og.png",
+    "og:title": "Allyson - AI Web Agent Documentation",
+    "og:description": "t",
+    "og:url": "https://allyson.ai/",
+    "article:publisher": "Allyson"
+  },
+  "versions": ["v1"],
+  "logo": {
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#4A849E",
+    "light": "#4A849E",
+    "dark": "#4A849E",
+    "anchors": {
+      "from": "#4A849E",
+      "to": "#4A849E"
+    },
+    "background": {
+      "light": "#F5F5F5",
+      "dark": "#000"
+    }
+  },
+  "background": {
+    "style": "grid"
+  },
+  "theme": "prism",
+  "topbarLinks": [
+    {
+      "name": "Support",
+      "url": "mailto:info@allyson.ai"
+    },
+    {
+      "name": "GitHub",
+      "url": "https://github.com/allyson-ai"
+    },
+    {
+      "name": "Discord",
+      "url": "https://discord.gg/vF95HF58v9"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Dashboard",
+    "url": "https://allyson.ai"
+  },
+  "tabs": [
+    {
+      "name": "API Reference",
+      "url": "api-reference"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Get Started",
+      "pages": ["introduction", "quickstart"]
+    },
+    {
+      "group": "Web App",
+      "pages": ["web-app/features"]
+    },
+    {
+      "group": "Mobile App",
+      "pages": ["mobile-app/installation", "mobile-app/features"]
+    },
+    {
+      "group": "Chrome Extension",
+      "pages": ["chrome-extension/installation", "chrome-extension/features"]
+    },
+    {
+      "group": "API Documentation",
+      "pages": ["api-reference/introduction"]
+    },
+
+    {
+      "group": "Sessions",
+      "pages": [
+        "api-reference/sessions/start-new-session",
+        "api-reference/sessions/get-sessions",
+        "api-reference/sessions/get-session",
+        "api-reference/sessions/update-human-input"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "x": "https://x.com/allyson_ai",
+    "github": "https://github.com/allyson-ai",
+    "discord": "https://discord.gg/vF95HF58v9"
+  },
+  "analytics": {
+    "posthog": {
+      "apiKey": "phc_ucAD7VA55cwwvhRBYZUYN1RAm5ZZINLP7nbrBfMkec2",
+      "apiHost": "https://app.posthog.com"
+    }
+  }
+}

@@ -1,0 +1,40 @@
+We are working in a monorepo (Turborepo) with the following structure:
+
+Programming languages: 
+- TypeScript
+- MDX
+
+Apps:
+apps/api - api server (NodeJS)
+apps/web - web app (NextJS)
+apps/www - website (NextJS)
+apps/docs - documentation (Mintlify)
+
+Packages:
+@allyson/ui - shared ui components
+@allyson/lib - shared libraries
+@allyson/models - database models
+@allyson/data - shared data
+@allyson/configs - shared configs
+@allyson/eslint-config - shared eslint config
+@allyson/typescript-config - shared typescript config
+
+Common imports:
+import { cn } from "@allyson/ui/lib/utils";
+
+import { useUser } from "@allyson/context";
+
+const { user, makeAuthenticatedRequest } = useUser();
+
+import SidebarMenuComponent from "@allyson/ui/layout/sidebar";
+import { useSidebar } from "@allyson/ui/sidebar";
+const { toggleSidebar } = useSidebar();
+
+
+API Common Imports:
+import { ExpressRequestWithAuth } from "@clerk/express";
+
+async function me(req: ExpressRequestWithAuth | Request, res: Response) {
+  const auth = (req as ExpressRequestWithAuth).auth;
+  const userId = auth.userId
+}
